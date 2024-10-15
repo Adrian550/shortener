@@ -77,6 +77,8 @@ func TestShortener(t *testing.T) {
 				handleGenURL(postResp, postReq)
 				postResult := postResp.Result()
 
+				defer postResult.Body.Close()
+
 				assert.Equal(t, tt.want.postStatus, postResult.StatusCode)
 
 				if postResult.StatusCode == http.StatusCreated {
@@ -90,6 +92,8 @@ func TestShortener(t *testing.T) {
 					handleRedirect(getResp, getReq)
 					getResult := getResp.Result()
 
+					defer getResult.Body.Close()
+
 					assert.Equal(t, tt.want.getStatus, getResult.StatusCode)
 
 					location := getResult.Header.Get("Location")
@@ -101,6 +105,8 @@ func TestShortener(t *testing.T) {
 
 				handleRedirect(getResp, getReq)
 				getResult := getResp.Result()
+
+				defer getResult.Body.Close()
 
 				assert.Equal(t, tt.want.getStatus, getResult.StatusCode)
 			}
