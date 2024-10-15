@@ -1,18 +1,14 @@
 package main
 
 import (
-	"encoding/json"
+	"io"
 	"math/rand"
 	"net/http"
 	"strings"
 )
 
-// TODO: mutex
+// TODO: mutex?
 var storeURL = make(map[string]string)
-
-type URL struct {
-	URL string `json:"url"`
-}
 
 func genStr() string {
 	var letters = []rune("abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ")
@@ -40,19 +36,18 @@ func handleRedirect(w http.ResponseWriter, r *http.Request) {
 }
 
 func handleGenURL(w http.ResponseWriter, r *http.Request) {
-	var t URL
-	err := json.NewDecoder(r.Body).Decode(&t)
+	body, err := io.ReadAll(r.Body)
 
-	if err != nil || t.URL == "" {
+	if err != nil {
 		w.WriteHeader(http.StatusBadRequest)
 		return
 	}
 
 	var newURL = genStr()
-	storeURL[newURL] = t.URL
+	storeURL[newURL] = string(body)
 
 	w.WriteHeader(http.StatusCreated)
-	w.Write([]byte("http://localhost:8080/" + newURL))
+	w.Write([]byte("http://" + r.Host + "/" + newURL))
 }
 
 func main() {
