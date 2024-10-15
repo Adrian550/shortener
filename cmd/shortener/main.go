@@ -5,14 +5,13 @@ import (
 	"math/rand"
 	"net/http"
 	"strings"
-	"time"
 )
 
 // TODO: mutex
 var storeURL = make(map[string]string)
 
 type URL struct {
-	Url string `json:"url"`
+	URL string `json:"url"`
 }
 
 func genStr() string {
@@ -45,15 +44,14 @@ func handleGenURL(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	var newUrl = genStr()
-	storeURL[newUrl] = t.Url
+	var newURL = genStr()
+	storeURL[newURL] = t.URL
 
 	w.WriteHeader(http.StatusCreated)
-	w.Write([]byte(r.Host + "/" + newUrl))
+	w.Write([]byte(r.Host + "/" + newURL))
 }
 
 func main() {
-	rand.Seed(time.Now().UnixNano())
 
 	http.HandleFunc(`/`, func(w http.ResponseWriter, r *http.Request) {
 		// В рамках net/http не придумал лучше способа.
