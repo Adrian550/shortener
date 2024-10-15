@@ -28,9 +28,12 @@ func handleRedirect(w http.ResponseWriter, r *http.Request) {
 	parts := strings.Split(path, "/")
 
 	if len(parts) > 1 {
-		w.Header().Add("Location", storeURL[parts[len(parts)-1]]) // TODO: check exist
-		w.WriteHeader(http.StatusTemporaryRedirect)
-		return
+		key := parts[len(parts)-1]
+		if targetURL, exists := storeURL[key]; exists {
+			w.Header().Set("Location", targetURL)
+			w.WriteHeader(http.StatusTemporaryRedirect)
+			return
+		}
 	}
 
 	w.WriteHeader(http.StatusBadRequest)
@@ -39,7 +42,8 @@ func handleRedirect(w http.ResponseWriter, r *http.Request) {
 func handleGenURL(w http.ResponseWriter, r *http.Request) {
 	var t URL
 	err := json.NewDecoder(r.Body).Decode(&t)
-	if err != nil {
+
+	if err != nil || t.URL == "" {
 		w.WriteHeader(http.StatusBadRequest)
 		return
 	}
@@ -48,7 +52,7 @@ func handleGenURL(w http.ResponseWriter, r *http.Request) {
 	storeURL[newURL] = t.URL
 
 	w.WriteHeader(http.StatusCreated)
-	w.Write([]byte(r.Host + "/" + newURL))
+	w.Write([]byte("http://localhost:8080/" + newURL))
 }
 
 func main() {
