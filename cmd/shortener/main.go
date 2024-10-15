@@ -38,7 +38,7 @@ func handleRedirect(w http.ResponseWriter, r *http.Request) {
 func handleGenURL(w http.ResponseWriter, r *http.Request) {
 	body, err := io.ReadAll(r.Body)
 
-	if err != nil {
+	if err != nil || string(body) == "" {
 		w.WriteHeader(http.StatusBadRequest)
 		return
 	}
